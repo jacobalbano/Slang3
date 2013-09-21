@@ -159,8 +159,8 @@ class ScriptEngine
 	
 	private function compile(symbols:Array<Dynamic>) 
 	{
-		var collapsed = collapse(symbols);
-		for (s in collapsed)
+		var collapsed = readAhead(symbols, 0, Token.ModuleEnd);
+		for (s in collapsed.contents)
 		{
 			trace(s);
 		}
@@ -201,13 +201,6 @@ class ScriptEngine
 		return { value : value, type : type };
 	}
 	
-	
-	private static function collapse(symbols:Array<Dynamic>):Array<Dynamic>
-	{
-		var read = readAhead(symbols, 0, Token.ModuleEnd);
-		return read.contents;
-	}
-	
 	private static function readAhead(symbols:Array<Dynamic>, start:Int, seek:Token):Read
 	{
 		var i = start + 1;
@@ -238,6 +231,11 @@ class ScriptEngine
 						case Token.ArrayEnd:	err(Token.ArrayEnd);
 						case Token.ScopeEnd:	err(Token.ScopeEnd);
 						case Token.TupleEnd:	err(Token.TupleEnd);
+						case Token.ModuleEnd:
+							if (seek != Token.ModuleEnd)
+							{
+								throw "End of module unexpected; expected " + Std.string(seek);
+							}
 						
 						case Token.ArrayBegin:
 							var read = readAhead(symbols, i, Token.ArrayEnd);
@@ -250,7 +248,7 @@ class ScriptEngine
 						case Token.TupleBegin:
 							var read = readAhead(symbols, i, Token.TupleEnd);
 							i += read.length;
-							result.push(new Tuple([]));
+							result.push(new Tuple(assertOnlyIDs(read.contents)));
 						default:
 							result.push(token);
 					}
@@ -268,5 +266,23 @@ class ScriptEngine
 			contents : result,
 			length : i - start
 		};
+	}
+	
+	private static function assertOnlyIDs(symbols:Array<Dynamic>):Array<String>
+	{
+		var IDs:Array<String> = [];
+		
+		for (symbol in symbols) 
+		{			
+			var lit:Literal = cast symbol;
+			if (Std.is(symbol, Token) || lit.type != Token.Identifier)
+			{
+				throw "Tuples can only contain identifiers!";
+			}
+			
+			IDs.push(Std.string(lit.value));
+		}
+		
+		return IDs;
 	}
 }
