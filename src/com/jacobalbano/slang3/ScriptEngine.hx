@@ -37,20 +37,33 @@ private typedef Literal = {
 	var type:Token;
 }
 
+private typedef Read = {
+	var length:Int;
+	var contents:Array<Dynamic>;
+};
+
+private typedef Keyword = {
+	/**
+	 * asdasdasd
+	 */
+	var token:Token;
+	var interrupt:Bool;
+};
+
 class ScriptEngine
 {
-	private var tokens:Map<String, Token>;
+	private var tokens:Map<String, Keyword>;
 	
 	public function new() 
 	{
-		tokens = new Map<String, Token>();
-		tokens.set("def", Token.Define);
-		tokens.set("{", Token.ScopeBegin);
-		tokens.set("}", Token.ScopeEnd);
-		tokens.set("[", Token.ArrayBegin);
-		tokens.set("]", Token.ArrayEnd);
-		tokens.set("(", Token.TupleBegin);
-		tokens.set(")", Token.TupleEnd);
+		tokens = new Map<String, Keyword>();
+		tokens.set("def", 	{ token : Token.Define,		interrupt : false, });
+		tokens.set("{", 	{ token : Token.ScopeBegin,	interrupt : true, });
+		tokens.set("}", 	{ token : Token.ScopeEnd,	interrupt : true, });
+		tokens.set("[", 	{ token : Token.ArrayBegin,	interrupt : true, });
+		tokens.set("]", 	{ token : Token.ArrayEnd,	interrupt : true, });
+		tokens.set("(", 	{ token : Token.TupleBegin,	interrupt : true, });
+		tokens.set(")", 	{ token : Token.TupleEnd,	interrupt : true, });
 	}
 	
 	public function parse(source:String):Void
@@ -100,7 +113,7 @@ class ScriptEngine
 				}
 				else
 				{
-					if (matchStringWithToken(char))
+					if (tokens[char] != null)
 					{
 						newSym();
 						newSym(char);
@@ -113,7 +126,8 @@ class ScriptEngine
 					}
 					
 					//	if the symbol matches a reserved word or token, add it immediately without waiting for whitespace
-					if (matchStringWithToken(stringbuilder.toString()))
+					var token = tokens[stringbuilder.toString()];
+					if (token != null && token.interrupt)
 					{
 						newSym();
 					}
@@ -134,7 +148,7 @@ class ScriptEngine
 			}
 			else
 			{
-				processedSymbols.push(t);
+				processedSymbols.push(t.token);
 			}
 		}
 		
@@ -145,24 +159,11 @@ class ScriptEngine
 	
 	private function compile(symbols:Array<Dynamic>) 
 	{
-		var i = 0;
-		for (s in symbols)
-		{
-			trace(Std.string(s) + "\t" + i++);
-		}
-		
-		trace("---");
-		
 		var collapsed = collapse(symbols);
 		for (s in collapsed)
 		{
 			trace(s);
 		}
-	}
-	
-	private function matchStringWithToken(source:String):Bool
-	{
-		return tokens.exists(source);
 	}
 	
 	private static function getLiteral(string:String):Literal
@@ -222,18 +223,43 @@ class ScriptEngine
 			}
 			else
 			{
-				if (symbol == Token.ArrayBegin)
+				function err(token)
 				{
-					var read = readAhead(symbols, i, Token.ArrayEnd);
-					trace(read);
-					i += read.length;
-					result.push(read.contents);
+					throw "Unexpected token " + Std.string(token);
+				}
+				
+				var found = true;
+				
+				if (Std.is(symbol, Token))
+				{
+					var token:Token = cast symbol;
+					switch (token)
+					{
+						case Token.ArrayEnd:	err(Token.ArrayEnd);
+						case Token.ScopeEnd:	err(Token.ScopeEnd);
+						case Token.TupleEnd:	err(Token.TupleEnd);
+						
+						case Token.ArrayBegin:
+							var read = readAhead(symbols, i, Token.ArrayEnd);
+							i += read.length;
+							result.push(new SlangArray(read.contents));
+						case Token.ScopeBegin:
+							var read = readAhead(symbols, i, Token.ScopeEnd);
+							i += read.length;
+							result.push(new Scope(read.contents));
+						case Token.TupleBegin:
+							var read = readAhead(symbols, i, Token.TupleEnd);
+							i += read.length;
+							result.push(new Tuple([]));
+						default:
+							result.push(token);
+					}
 				}
 				else
 				{
-					result.push(symbols[i]);
+					result.push(symbol);
 				}
-			
+				
 				++i;
 			}
 		}
@@ -244,10 +270,3 @@ class ScriptEngine
 		};
 	}
 }
-
-
-typedef Read = {
-	var length:Int;
-	var contents:Array<Dynamic>;
-};
-
