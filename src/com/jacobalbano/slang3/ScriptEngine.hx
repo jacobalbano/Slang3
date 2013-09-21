@@ -1,6 +1,9 @@
 package com.jacobalbano.slang3;
 import flash.display.DisplayObjectContainer;
 import flash.display.GraphicsStroke;
+import flash.display.InteractiveObject;
+import flash.system.System;
+import haxe.remoting.SocketConnection;
 
 /**
  * ...
@@ -142,10 +145,18 @@ class ScriptEngine
 	
 	private function compile(symbols:Array<Dynamic>) 
 	{
-		var collapsed = collapse(symbols, 0, Token.ModuleEnd, 0);
-		for	(symbol in collapsed)
+		var i = 0;
+		for (s in symbols)
 		{
-			trace(symbol);
+			trace(Std.string(s) + "\t" + i++);
+		}
+		
+		trace("---");
+		
+		var collapsed = collapse(symbols);
+		for (s in collapsed)
+		{
+			trace(s);
 		}
 	}
 	
@@ -154,7 +165,6 @@ class ScriptEngine
 		return tokens.exists(source);
 	}
 	
-	//TODO:	rename this?
 	private static function getLiteral(string:String):Literal
 	{
 		var type = Token.Identifier;
@@ -190,90 +200,54 @@ class ScriptEngine
 		return { value : value, type : type };
 	}
 	
-	private static function collapse(symbols:Array<Dynamic>, start:Int, seek:Token, depth:Int):Array<Dynamic>
+	
+	private static function collapse(symbols:Array<Dynamic>):Array<Dynamic>
 	{
-		trace(depth, symbols[start]);
+		var read = readAhead(symbols, 0, Token.ModuleEnd);
+		return read.contents;
+	}
+	
+	private static function readAhead(symbols:Array<Dynamic>, start:Int, seek:Token):Read
+	{
+		var i = start + 1;
 		var result:Array<Dynamic> = [];
-		var i = start;
-		var symbol:Dynamic = null;
 		
-		var all:Array<Dynamic> = [];
-		
-		while (symbol != seek)
+		while (i < symbols.length)
 		{
-			if (i >= symbols.length)
+			var symbol:Dynamic = symbols[i];
+			
+			if (symbol == seek)
 			{
-				throw "bad bad bad";
-			}
-			
-			symbol = symbols[i];
-			
-			if (symbol == Token.ModuleEnd && seek != Token.ModuleEnd)
-			{
-				throw "Unexpected end of module; " + Std.string(seek) + " expected.";
-			}
-			
-			function err(t) { throw "Unexpected " + Std.string(t); }
-			
-			if (Std.is(symbol, Token))
-			{
-				var token:Token = cast symbol;
-				switch (token)
-				{
-					//	pass
-					case Token.ModuleBegin:
-					case Token.ModuleEnd:
-					
-					//	error
-					//case Token.ScopeEnd: err(token);
-					//case Token.TupleEnd: err(token);
-					//case Token.ArrayEnd: err(token);
-					
-					case Token.ScopeBegin:
-						var contents = collapse(symbols, i + 1, Token.ScopeEnd, depth + 1);
-						i += contents.length;
-						contents.pop();
-						
-						result.push(new Scope(contents));
-						
-					case Token.ArrayBegin:
-						var contents = collapse(symbols, i + 1, Token.ArrayEnd, depth + 1);
-						i += contents.length;
-						contents.pop();
-						
-						result.push(new SlangArray(contents));
-						
-					case Token.TupleBegin:
-						var contents = collapse(symbols, i + 1, Token.TupleEnd, depth + 1);
-						i += contents.length;
-						contents.pop();
-						
-						var IDs = [];
-						for (id in contents) 
-						{
-							var lit:Literal = cast id;
-							if (Std.is(id, Token) || lit.type != Token.Identifier)
-							{
-								throw "Tuples can only contain identifiers!";
-							}
-							
-							IDs.push(lit.value);
-						}
-						
-						result.push(new Tuple(IDs));
-						
-					default:
-						result.push(token);
-				}
+				break;
 			}
 			else
 			{
-				result.push(symbol);
-			}
+				if (symbol == Token.ArrayBegin)
+				{
+					var read = readAhead(symbols, i, Token.ArrayEnd);
+					trace(read);
+					i += read.length;
+					result.push(read.contents);
+				}
+				else
+				{
+					result.push(symbols[i]);
+				}
 			
-			++i;
+				++i;
+			}
 		}
 		
-		return result;
+		return {
+			contents : result,
+			length : i - start
+		};
 	}
 }
+
+
+typedef Read = {
+	var length:Int;
+	var contents:Array<Dynamic>;
+};
+
