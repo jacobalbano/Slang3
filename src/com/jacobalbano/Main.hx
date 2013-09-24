@@ -1,6 +1,8 @@
 package com.jacobalbano;
 
 import com.jacobalbano.slang3.ScriptEngine;
+import flash.display.Bitmap;
+import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
@@ -23,8 +25,9 @@ class Main extends Sprite
 	{
 		var source = Assets.getText("assets/source.s");
 		
-		var s = new ScriptEngine();
-		s.parse(source);
+		var engine = new ScriptEngine();
+		var scope = engine.compile(source);
+		scope.execute();
 	}
 
 	public static function main() 

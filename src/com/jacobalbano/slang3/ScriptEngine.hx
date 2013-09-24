@@ -10,12 +10,15 @@ import haxe.remoting.SocketConnection;
  * @author Jake Albano
  */
 
-private enum Token
+@:allow(com.jacobalbano.slang3)
+enum Token
 {
 	ModuleBegin;
 	ModuleEnd;
 	
-	Define;
+	Procedure;
+	Function;
+	Variable;
 	
 	LiteralNumber;
 	LiteralBool;
@@ -32,20 +35,12 @@ private enum Token
 	TupleEnd;
 }
 
-private typedef Literal = {
-	var value:Dynamic;
-	var type:Token;
-}
-
 private typedef Read = {
 	var length:Int;
 	var contents:Array<Dynamic>;
 };
 
 private typedef Keyword = {
-	/**
-	 * asdasdasd
-	 */
 	var token:Token;
 	var interrupt:Bool;
 };
@@ -57,16 +52,28 @@ class ScriptEngine
 	public function new() 
 	{
 		tokens = new Map<String, Keyword>();
-		tokens.set("def", 	{ token : Token.Define,		interrupt : false, });
+		tokens.set("func", 	{ token : Token.Function,	interrupt : false, });
+		tokens.set("proc", 	{ token : Token.Procedure,	interrupt : false, });
+		tokens.set("var", 	{ token : Token.Variable,	interrupt : false, });
 		tokens.set("{", 	{ token : Token.ScopeBegin,	interrupt : true, });
 		tokens.set("}", 	{ token : Token.ScopeEnd,	interrupt : true, });
 		tokens.set("[", 	{ token : Token.ArrayBegin,	interrupt : true, });
 		tokens.set("]", 	{ token : Token.ArrayEnd,	interrupt : true, });
 		tokens.set("(", 	{ token : Token.TupleBegin,	interrupt : true, });
-		tokens.set(")", 	{ token : Token.TupleEnd,	interrupt : true, });
+		tokens.set(")", 	{ token : Token.TupleEnd,	interrupt : true, } );
 	}
 	
-	public function parse(source:String):Void
+	public function compile(source:String):Scope
+	{
+		var parsed = parse(source);
+		
+		var global = new Scope();
+		var collapsed = collapse(parsed, 0, Token.ModuleEnd, global);
+		global.process(collapsed.contents);
+		return global;
+	}
+	
+	private function parse(source:String):Array<Dynamic>
 	{
 		source = source + "\n";	//	append a newline for super clean symbolification
 		var symbols = new Array<String>();
@@ -154,16 +161,7 @@ class ScriptEngine
 		
 		processedSymbols.push(Token.ModuleEnd);
 		
-		compile(processedSymbols);
-	}
-	
-	private function compile(symbols:Array<Dynamic>) 
-	{
-		var collapsed = readAhead(symbols, 0, Token.ModuleEnd);
-		for (s in collapsed.contents)
-		{
-			trace(s);
-		}
+		return processedSymbols;
 	}
 	
 	private static function getLiteral(string:String):Literal
@@ -198,10 +196,10 @@ class ScriptEngine
 				throw "oh noooooo";
 		}
 		
-		return { value : value, type : type };
+		return new Literal(value, type);
 	}
 	
-	private static function readAhead(symbols:Array<Dynamic>, start:Int, seek:Token):Read
+	private static function collapse(symbols:Array<Dynamic>, start:Int, seek:Token, parent:Scope):Read
 	{
 		var i = start + 1;
 		var result:Array<Dynamic> = [];
@@ -238,15 +236,17 @@ class ScriptEngine
 							}
 						
 						case Token.ArrayBegin:
-							var read = readAhead(symbols, i, Token.ArrayEnd);
+							var read = collapse(symbols, i, Token.ArrayEnd, parent);
 							i += read.length;
 							result.push(new SlangArray(read.contents));
 						case Token.ScopeBegin:
-							var read = readAhead(symbols, i, Token.ScopeEnd);
+							var read = collapse(symbols, i, Token.ScopeEnd, parent);
 							i += read.length;
-							result.push(new Scope(read.contents));
+							var scope = new Scope(parent);
+							scope.process(read.contents);
+							result.push(scope);
 						case Token.TupleBegin:
-							var read = readAhead(symbols, i, Token.TupleEnd);
+							var read = collapse(symbols, i, Token.TupleEnd, parent);
 							i += read.length;
 							result.push(new Tuple(assertOnlyIDs(read.contents)));
 						default:
