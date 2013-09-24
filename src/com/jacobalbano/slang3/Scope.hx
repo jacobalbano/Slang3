@@ -81,7 +81,7 @@ class Scope
 				if (func.argc == argcount)
 				{
 					//	TODO:	add the result to the argstack
-					var result = func.call(argstack.concat([]));
+					var result = func.call(argstack.slice(-argcount));
 					var count = func.argc;
 					while (count --> 0)
 					{

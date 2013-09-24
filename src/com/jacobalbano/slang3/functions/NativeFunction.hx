@@ -53,8 +53,7 @@ class NativeFunction extends SlangFunction
 			}
 		}
 		
-		var result = Reflect.callMethod(self, func, args);
-		return type == FunctionType.Procedure ? null : result;
+		return Reflect.callMethod(self, func, args);
 	}
 	
 }
