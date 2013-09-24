@@ -67,32 +67,65 @@ class Scope
 		
 		var callstack:Array<SlangFunction> = [];
 		var argstack:Array<Dynamic> = [];
+		var argcounts:Array<Int> = [];
+		var argcount = 0;
 		
-		function checkCall()
+		var checkCall:Void->Void = null;
+		var pushArg:Dynamic->Void = null;
+		
+		checkCall = function()
 		{
 			if (callstack.length > 0)
 			{
 				var func = callstack[callstack.length - 1];
-				if (func.argc == argstack.length)
+				if (func.argc == argcount)
 				{
-					func.call(argstack.concat([]));
-					argstack = [];
+					//	TODO:	add the result to the argstack
+					var result = func.call(argstack.concat([]));
+					var count = func.argc;
+					while (count --> 0)
+					{
+						argstack.pop();
+					}
+					
+					callstack.pop();
+					var count = argcounts.pop();
+					if (count == null)
+					{
+						argcount = 0;
+					}
+					else
+					{
+						argcount = count;
+					}
 				}
 			}
 		}
 		
-		for (sym in this.symbols)
+		pushArg = function(value)
+		{			
+			if (callstack.length > 0)
+			{
+				++argcount;
+				argstack.push(value);
+				checkCall();
+			}
+		}
+		
+		for (sym in symbols)
 		{
 			if (Std.is(sym, Literal))
 			{
 				var l:Literal = cast sym;
-				if (l.type == Identifier)
+				if (l.type == Token.Identifier)
 				{
 					var name = Std.string(l.value);
 					var func = getFunction(name);
 					if (func != null)
 					{
 						callstack.push(func);
+						argcounts.push(argcount);
+						argcount = 0;
 						checkCall();
 						continue;
 					}
@@ -100,39 +133,31 @@ class Scope
 					var variable = getVar(name);
 					if (variable != null)
 					{
-						if (callstack.length > 0)
-						{
-							argstack.push(variable);
-							checkCall();
-							continue;
-						}
+						pushArg(variable);
+						continue;
 					}
 				}
 				else
 				{
-					if (callstack.length > 0)
-					{
-						argstack.push(l.value);
-						checkCall();
-					}
+					pushArg(l.value);
 				}
 			}
 			else if (Std.is(sym, SlangArray))
 			{
-				trace("arrayyyyy");
 				var arr:SlangArray = cast sym;
 				arr.process(this);
-				argstack.push(sym);
-				checkCall();
-				continue;
+				pushArg(arr);
 			}
 			else
 			{
 				//	literal values
-				argstack.push(sym);
-				checkCall();
-				continue;
+				pushArg(sym);
 			}
+		}
+		
+		if (callstack.length > 0)
+		{
+			throw "Unresolved functions left on stack.";
 		}
 	}
 	
