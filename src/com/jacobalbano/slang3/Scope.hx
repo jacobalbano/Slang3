@@ -1,5 +1,5 @@
 package com.jacobalbano.slang3;
-import com.jacobalbano.slang3.functions.SlangSTD;
+import com.jacobalbano.slang3.functions.lib.SlangSTD;
 import com.jacobalbano.slang3.Scope.Match;
 import com.jacobalbano.slang3.ScriptEngine;
 import com.jacobalbano.slang3.functions.ScriptFunction;
@@ -100,9 +100,12 @@ class Scope
 					var variable = getVar(name);
 					if (variable != null)
 					{
-						argstack.push(variable);
-						checkCall();
-						continue;
+						if (callstack.length > 0)
+						{
+							argstack.push(variable);
+							checkCall();
+							continue;
+						}
 					}
 				}
 				else
@@ -114,8 +117,18 @@ class Scope
 					}
 				}
 			}
+			else if (Std.is(sym, SlangArray))
+			{
+				trace("arrayyyyy");
+				var arr:SlangArray = cast sym;
+				arr.process(this);
+				argstack.push(sym);
+				checkCall();
+				continue;
+			}
 			else
 			{
+				//	literal values
 				argstack.push(sym);
 				checkCall();
 				continue;
@@ -123,7 +136,7 @@ class Scope
 		}
 	}
 	
-	private function getFunction(name:String):SlangFunction
+	@:allow(com.jacobalbano.slang3) function getFunction(name:String):SlangFunction
 	{
 		var result = functions[name];
 		if (result != null)
@@ -139,7 +152,7 @@ class Scope
 		return null;
 	}
 	
-	private function getVar(name:String):Dynamic
+	@:allow(com.jacobalbano.slang3) function getVar(name:String):Dynamic
 	{
 		var result = vars[name];
 		if (result != null)
@@ -162,7 +175,7 @@ class Scope
 		this.symbols = removeMatches(symbols);
 	}
 	
-	function removeMatches(symbols:Array<Dynamic>):Array<Dynamic>
+	private function removeMatches(symbols:Array<Dynamic>):Array<Dynamic>
 	{
 		var result:Array<Dynamic> = [];
 		
@@ -182,16 +195,13 @@ class Scope
 					newFunc(combo, FunctionType.Procedure);
 					combo = [];
 				case MatchID.Variable:
-					var v = newVar(combo);
-					trace(v);
-					result.push(v);
+					result.push(newVar(combo));
 					combo = [];
 				case MatchID.Incomplete:
 					//	continue matching
 				case MatchID.NoMatchPossible:
 					if (combo.length > 1)
 					{
-						trace(combo);
 						throw "Pattern ended unexpectedly.";
 					}
 					else

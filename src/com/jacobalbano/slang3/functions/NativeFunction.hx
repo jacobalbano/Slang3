@@ -20,16 +20,16 @@ class NativeFunction extends SlangFunction
 		_argc = argc;
 	}
 	
-		private static function indexOf<T>(a:Array<T>, v:T):Int
+	private static function indexOf<T>(a:Array<T>, v:T):Int
+	{
+		var i = 0;
+		for (v2 in a)
 		{
-			var i = 0;
-			for (v2 in a)
-			{
-				if( v == v2 ) return i;
-				i++;
-			}
-			return -1;
+			if( v == v2 ) return i;
+			i++;
 		}
+		return -1;
+	}
 	
 	override public function call(args:Array<Dynamic>):Dynamic 
 	{

@@ -14,12 +14,12 @@ class ScriptFunction extends SlangFunction
 	private var params:Tuple;
 	private var scope:Scope;
 	
-	public function new(type:FunctionType, params:Tuple, scope:Scope, ?refs:Array<Int>)
+	public function new(type:FunctionType, params:Tuple, scope:Scope)
 	{
 		this.type = type;
 		this.params = params;
 		this.scope = scope;
-		_refs = refs == null ? SlangFunction.EMPTY_REFS : refs;
+		_refs = SlangFunction.EMPTY_REFS;
 	}
 	
 	override public function call(args:Array<Dynamic>):Dynamic
