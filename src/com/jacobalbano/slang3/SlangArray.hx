@@ -1,6 +1,4 @@
 package com.jacobalbano.slang3;
-import com.jacobalbano.slang3.functions.SlangFunction;
-import com.jacobalbano.slang3.ScriptEngine;
 
 /**
  * ...
@@ -19,6 +17,7 @@ class SlangArray
 	@:allow(com.jacobalbano.slang3) function process(scope:Scope):Void
 	{
 		if (contents != null)
+		
 		{
 			//	processing is already done
 			return;

@@ -1,5 +1,6 @@
 package com.jacobalbano.slang3.functions;
 import com.jacobalbano.slang3.functions.SlangFunction;
+import com.jacobalbano.slang3.Scope;
 import com.jacobalbano.slang3.ScriptVariable;
 using com.jacobalbano.slang3.Utils;
 
@@ -43,7 +44,8 @@ class NativeFunction extends SlangFunction
 			}
 		}
 		
-		return Reflect.callMethod(self, func, args);
+		var result = Reflect.callMethod(self, func, args);
+		return result;
 	}
 	
 }

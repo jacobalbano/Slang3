@@ -1,4 +1,5 @@
 package com.jacobalbano.slang3.functions;
+import com.jacobalbano.slang3.Scope;
 
 /**
  * ...
@@ -14,11 +15,16 @@ enum FunctionType
 class SlangFunction
 {
 	private static var EMPTY_REFS:Array<Int> = [];
-	
+
+	@:allow(com.jacobalbano.slang3) var context:Scope;	
 	public var argc (get, never) : Int;
 	public var refs (get, never) : Array<Int>;
 	
 	private var type:FunctionType;
+	
+	public function prepare(context:Scope):Void
+	{
+	}
 	
 	public function call(args:Array<Dynamic>):Dynamic
 	{

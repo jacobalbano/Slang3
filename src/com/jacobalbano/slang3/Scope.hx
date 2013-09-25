@@ -1,4 +1,5 @@
 package com.jacobalbano.slang3;
+import com.jacobalbano.slang3.functions.lib.SlangMath;
 import com.jacobalbano.slang3.functions.lib.SlangSTD;
 import com.jacobalbano.slang3.Scope.Match;
 import com.jacobalbano.slang3.ScriptEngine;
@@ -42,7 +43,7 @@ class Scope
 	
 	private var symbols:Array<Dynamic>;
 	
-	private var parent:Scope;
+	@:allow(com.jacobalbano.slang3) var parent:Scope;
 	@:allow(com.jacobalbano.slang3)	var functions:Map<String, SlangFunction>;
 	@:allow(com.jacobalbano.slang3)	var vars:Map<String, ScriptVariable>;
 	
@@ -54,7 +55,8 @@ class Scope
 		
 		if (parent == null)
 		{
-			SlangSTD.bindSTD(this);
+			SlangSTD.bind(this);
+			SlangMath.bind(this);
 		}
 	}
 	
@@ -88,7 +90,6 @@ class Scope
 				var func = callstack[callstack.length - 1];
 				if (func.argc == argcount)
 				{
-					//	TODO:	add the result to the argstack
 					var result = func.call(argstack.slice(-argcount));
 					var count = func.argc;
 					while (count --> 0)
@@ -105,6 +106,18 @@ class Scope
 					else
 					{
 						argcount = count;
+					}
+					
+					if (result != null)
+					{
+						if (Std.is(result, SlangFunction))
+						{
+							pushFunc(cast result);
+						}
+						else
+						{
+							pushArg(result);
+						}
 					}
 				}
 			}
@@ -126,6 +139,7 @@ class Scope
 		
 		pushFunc = function(func)
 		{
+			func.prepare(this);
 			callstack.push(func);
 			argcounts.push(argcount);
 			argcount = 0;
@@ -170,6 +184,11 @@ class Scope
 				//	literal values
 				pushArg(sym);
 			}
+		}
+		
+		if (callstack.length > 0)
+		{
+			throw "Unresolved functions left on stack.";
 		}
 		
 		return results;
