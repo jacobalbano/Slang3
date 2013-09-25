@@ -72,6 +72,7 @@ class Scope
 		
 		var checkCall:Void->Void = null;
 		var pushArg:Dynamic->Void = null;
+		var pushFunc:SlangFunction->Void = null;
 		
 		checkCall = function()
 		{
@@ -112,6 +113,14 @@ class Scope
 			}
 		}
 		
+		pushFunc = function(func)
+		{
+			callstack.push(func);
+			argcounts.push(argcount);
+			argcount = 0;
+			checkCall();
+		}
+		
 		for (sym in symbols)
 		{
 			if (Std.is(sym, Literal))
@@ -123,10 +132,7 @@ class Scope
 					var func = getFunction(name);
 					if (func != null)
 					{
-						callstack.push(func);
-						argcounts.push(argcount);
-						argcount = 0;
-						checkCall();
+						pushFunc(func);
 						continue;
 					}
 					
@@ -231,7 +237,17 @@ class Scope
 					}
 					else
 					{
-						result.push(symbol);
+						if (Std.is(symbol, SlangArray))
+						{
+							var array:SlangArray = cast symbol;
+							var contents = removeMatches(array.symbols);
+							result.push(new SlangArray(contents));
+						}
+						else
+						{
+							result.push(symbol);
+						}
+						
 						combo = [];
 					}
 			}

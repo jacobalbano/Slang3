@@ -8,7 +8,7 @@ import com.jacobalbano.slang3.ScriptEngine;
  */
 class SlangArray
 {
-	private var symbols:Array<Dynamic>;
+	@:allow(com.jacobalbano.slang3) var symbols:Array<Dynamic>;
 	@:allow(com.jacobalbano.slang3) var contents:Array<Dynamic>;
 	
 	public function new(symbols:Array<Dynamic>) 

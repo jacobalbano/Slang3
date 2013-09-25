@@ -17,8 +17,10 @@ class SlangSTD
 	{
 		scope.functions.set("print", new NativeFunction(print, 1, FunctionType.Procedure));
 		scope.functions.set("set", new NativeFunction(__set, 2, FunctionType.Function, [0]));
+		
 		scope.functions.set("if", new NativeFunction(__if, 2, FunctionType.Procedure));
 		scope.functions.set("ifelse", new NativeFunction(__ifelse, 3, FunctionType.Procedure));
+		scope.functions.set("!", new NativeFunction(__not, 1, FunctionType.Function));
 	}
 	
 	private static function __set(variable:ScriptVariable, value:Dynamic):Dynamic
@@ -43,5 +45,10 @@ class SlangSTD
 	private static function __ifelse(condition:Bool, scopeTrue:Scope, scopeFalse:Scope):Void
 	{
 		condition ? scopeTrue.execute() : scopeFalse.execute();
+	}
+	
+	private static function __not(condition:Bool):Bool
+	{
+		return !condition;
 	}
 }
