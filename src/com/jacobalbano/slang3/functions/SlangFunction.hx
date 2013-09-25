@@ -1,4 +1,5 @@
 package com.jacobalbano.slang3.functions;
+import com.jacobalbano.slang3.ExecutionContext;
 import com.jacobalbano.slang3.Scope;
 
 /**
@@ -19,14 +20,20 @@ class SlangFunction
 	@:allow(com.jacobalbano.slang3) var context:Scope;	
 	public var argc (get, never) : Int;
 	public var refs (get, never) : Array<Int>;
+	public var name (default, null) : String;
 	
 	private var type:FunctionType;
+	
+	public function new(name:String)
+	{
+		this.name = name;
+	}
 	
 	public function prepare(context:Scope):Void
 	{
 	}
 	
-	public function call(args:Array<Dynamic>):Dynamic
+	public function call(context:ExecutionContext, args:Array<Dynamic>):Dynamic
 	{
 		throw "must override this method!";
 		return null;

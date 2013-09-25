@@ -1,4 +1,5 @@
 package com.jacobalbano.slang3.functions;
+import com.jacobalbano.slang3.ExecutionContext;
 import com.jacobalbano.slang3.functions.SlangFunction;
 import com.jacobalbano.slang3.Scope;
 import com.jacobalbano.slang3.ScriptVariable;
@@ -13,8 +14,9 @@ class NativeFunction extends SlangFunction
 	private var func:Dynamic;
 	private var self:Dynamic;
 	
-	public function new(func:Dynamic, argc:Int, type:FunctionType, ?refs:Array<Int>, ?self:Dynamic) 
+	public function new(name:String, func:Dynamic, argc:Int, type:FunctionType, ?refs:Array<Int>, ?self:Dynamic) 
 	{
+		super(name);
 		this.func = func;
 		this.type = type;
 		this.self = self;
@@ -22,7 +24,7 @@ class NativeFunction extends SlangFunction
 		_argc = argc;
 	}
 	
-	override public function call(args:Array<Dynamic>):Dynamic 
+	override public function call(context:ExecutionContext, args:Array<Dynamic>):Dynamic 
 	{
 		for (i in 0...args.length)
 		{

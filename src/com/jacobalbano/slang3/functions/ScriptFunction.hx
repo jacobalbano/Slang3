@@ -17,17 +17,18 @@ class ScriptFunction extends SlangFunction
 	//	the return value
 	private var result:Dynamic;
 	
-	public function new(type:FunctionType, params:Tuple, scope:Scope)
+	public function new(name:String, type:FunctionType, params:Tuple, scope:Scope)
 	{
+		super(name);
 		this.type = type;
 		this.params = params;
 		this.scope = scope;
 		_refs = SlangFunction.EMPTY_REFS;
 		
-		scope.functions.set("return", new NativeFunction(__return, 1, FunctionType.Function, this));
+		scope.functions.set("return", new NativeFunction("return", __return, 1, FunctionType.Function, this));
 	}
 	
-	override public function call(args:Array<Dynamic>):Dynamic
+	override public function call(context:ExecutionContext, args:Array<Dynamic>):Dynamic
 	{
 		for (i in 0...args.length)
 		{

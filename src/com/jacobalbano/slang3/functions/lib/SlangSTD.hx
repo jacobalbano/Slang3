@@ -15,13 +15,13 @@ class SlangSTD
 {
 	public static function bind(scope:Scope):Void
 	{
-		scope.functions.set("print", new NativeFunction(print, 1, FunctionType.Procedure));
-		scope.functions.set("set", new NativeFunction(__set, 2, FunctionType.Function, [0]));
-		
-		scope.functions.set("if", new NativeFunction(__if, 2, FunctionType.Procedure));
-		scope.functions.set("ifelse", new NativeFunction(__ifelse, 3, FunctionType.Procedure));
-		scope.functions.set("!", new NativeFunction(__not, 1, FunctionType.Function));
-		scope.functions.set("==", new NativeFunction(__eq, 2, FunctionType.Function));
+		scope.functions.set("print", new NativeFunction("print", print, 1, FunctionType.Procedure));
+		scope.functions.set("set", new NativeFunction("set", __set, 2, FunctionType.Function, [0]));
+		                                                   
+		scope.functions.set("if", new NativeFunction("if", __if, 2, FunctionType.Procedure));
+		scope.functions.set("ifelse", new NativeFunction("ifelse", __ifelse, 3, FunctionType.Procedure));
+		scope.functions.set("!", new NativeFunction("!", __not, 1, FunctionType.Function));
+		scope.functions.set("==", new NativeFunction("==", __eq, 2, FunctionType.Function));
 		
 	}
 	

@@ -72,126 +72,58 @@ class Scope
 	
 	@:allow(com.jacobalbano.slang3) function evalExpression(symbols:Array<Dynamic>):Array<Dynamic>
 	{
-		
-		var results:Array<Dynamic> = [];
-		var callstack:Array<SlangFunction> = [];
-		var argstack:Array<Dynamic> = [];
-		var argcounts:Array<Int> = [];
-		var argcount = 0;
-		
-		var checkCall:Void->Void = null;
-		var pushArg:Dynamic->Void = null;
-		var pushFunc:SlangFunction->Void = null;
-		
-		checkCall = function()
+		var context = new ExecutionContext(this);
+			
+		try
 		{
-			if (callstack.length > 0)
+			for (sym in symbols)
 			{
-				var func = callstack[callstack.length - 1];
-				if (func.argc == argcount)
+				if (Std.is(sym, Literal))
 				{
-					var result = func.call(argstack.slice(-argcount));
-					var count = func.argc;
-					while (count --> 0)
+					var l:Literal = cast sym;
+					if (l.type == Token.Identifier)
 					{
-						argstack.pop();
-					}
-					
-					callstack.pop();
-					var count = argcounts.pop();
-					if (count == null)
-					{
-						argcount = 0;
+						var name = Std.string(l.value);
+						var func = getFunction(name);
+						if (func != null)
+						{
+							context.pushFunc(func);
+							continue;
+						}
+						
+						var variable = getVar(name);
+						if (variable != null)
+						{
+							context.pushArg(variable);
+							continue;
+						}
 					}
 					else
 					{
-						argcount = count;
-					}
-					
-					if (result != null)
-					{
-						if (Std.is(result, SlangFunction))
-						{
-							pushFunc(cast result);
-						}
-						else
-						{
-							pushArg(result);
-						}
+						context.pushArg(l.value);
 					}
 				}
-			}
-		}
-		
-		pushArg = function(value)
-		{			
-			if (callstack.length > 0)
-			{
-				++argcount;
-				argstack.push(value);
-				checkCall();
-			}
-			else
-			{
-				results.push(value);
-			}
-		}
-		
-		pushFunc = function(func)
-		{
-			func.prepare(this);
-			callstack.push(func);
-			argcounts.push(argcount);
-			argcount = 0;
-			checkCall();
-		}
-		
-		for (sym in symbols)
-		{
-			if (Std.is(sym, Literal))
-			{
-				var l:Literal = cast sym;
-				if (l.type == Token.Identifier)
+				else if (Std.is(sym, SlangArray))
 				{
-					var name = Std.string(l.value);
-					var func = getFunction(name);
-					if (func != null)
-					{
-						pushFunc(func);
-						continue;
-					}
-					
-					var variable = getVar(name);
-					if (variable != null)
-					{
-						pushArg(variable);
-						continue;
-					}
+					var arr:SlangArray = cast sym;
+					arr.process(this);
+					context.pushArg(arr);
 				}
 				else
 				{
-					pushArg(l.value);
+					//	literal values
+					context.pushArg(sym);
 				}
 			}
-			else if (Std.is(sym, SlangArray))
-			{
-				var arr:SlangArray = cast sym;
-				arr.process(this);
-				pushArg(arr);
-			}
-			else
-			{
-				//	literal values
-				pushArg(sym);
-			}
+			
+			context.assertCompleted();
 		}
-		
-		if (callstack.length > 0)
+		catch (e:String)
 		{
-			throw "Unresolved functions left on stack.";
+			throw e + "\n\t" + context.getStacktrace();
 		}
 		
-		return results;
+		return context.getResults();
 	}
 	
 	private function getFunction(name:String):SlangFunction
@@ -425,7 +357,7 @@ class Scope
 		var name:String = Std.string(id.value);
 		var params:Tuple = cast combo[2];
 		var scope:Scope = cast combo[3];
-		var func = new ScriptFunction(type, params, scope);
+		var func = new ScriptFunction(name, type, params, scope);
 		
 		if (functions[name] != null)
 		{
