@@ -1,9 +1,4 @@
 package com.jacobalbano.slang3;
-import flash.display.DisplayObjectContainer;
-import flash.display.GraphicsStroke;
-import flash.display.InteractiveObject;
-import flash.system.System;
-import haxe.remoting.SocketConnection;
 
 /**
  * ...

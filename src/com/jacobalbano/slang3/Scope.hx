@@ -65,6 +65,13 @@ class Scope
 			throw "There was an error during compilation and execution cannot take place.";
 		}
 		
+		evalExpression(symbols);
+	}
+	
+	@:allow(com.jacobalbano.slang3) function evalExpression(symbols:Array<Dynamic>):Array<Dynamic>
+	{
+		
+		var results:Array<Dynamic> = [];
 		var callstack:Array<SlangFunction> = [];
 		var argstack:Array<Dynamic> = [];
 		var argcounts:Array<Int> = [];
@@ -110,6 +117,10 @@ class Scope
 				++argcount;
 				argstack.push(value);
 				checkCall();
+			}
+			else
+			{
+				results.push(value);
 			}
 		}
 		
@@ -161,10 +172,7 @@ class Scope
 			}
 		}
 		
-		if (callstack.length > 0)
-		{
-			throw "Unresolved functions left on stack.";
-		}
+		return results;
 	}
 	
 	@:allow(com.jacobalbano.slang3) function getFunction(name:String):SlangFunction

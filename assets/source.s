@@ -1,1 +1,1 @@
-print [ set var a "hi" ]
+print [ 1 2 3 34 false "amg"]
