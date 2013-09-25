@@ -1,1 +1,3 @@
-print [ 1 2 3 34 false "amg"]
+func josh (a a1) {
+	
+}

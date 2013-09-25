@@ -1,4 +1,5 @@
 package com.jacobalbano.slang3;
+using com.jacobalbano.slang3.Utils;
 
 /**
  * ...
@@ -11,7 +12,17 @@ class Tuple
 
 	public function new(IDs:Array<String>) 
 	{
-		this.IDs = IDs;
+		this.IDs = [];
+		
+		for (id in IDs)
+		{
+			if (this.IDs.indexOf(id) >= 0)
+			{
+				throw "A tuple cannot contain the same value twice!";
+			}
+			
+			this.IDs.push(id);
+		}
 	}
 	
 	public function toString():String

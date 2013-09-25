@@ -175,7 +175,7 @@ class Scope
 		return results;
 	}
 	
-	@:allow(com.jacobalbano.slang3) function getFunction(name:String):SlangFunction
+	private function getFunction(name:String):SlangFunction
 	{
 		var result = functions[name];
 		if (result != null)
@@ -191,7 +191,7 @@ class Scope
 		return null;
 	}
 	
-	@:allow(com.jacobalbano.slang3) function getVar(name:String):Dynamic
+	private function getVar(name:String):Dynamic
 	{
 		var result = vars[name];
 		if (result != null)
@@ -208,8 +208,7 @@ class Scope
 		return null;
 	}
 	
-	@:allow(com.jacobalbano.slang3)
-	function process(symbols:Array<Dynamic>):Void
+	@:allow(com.jacobalbano.slang3)	function process(symbols:Array<Dynamic>):Void
 	{
 		this.symbols = removeMatches(symbols);
 	}
