@@ -1,4 +1,7 @@
 package com.jacobalbano;
+#if neko
+import com.jacobalbano.slang3.FileTrace;
+#end
 
 import com.jacobalbano.slang3.ScriptEngine;
 import flash.display.Bitmap;
@@ -19,6 +22,9 @@ class Main extends Sprite
 	{
 		super();	
 		addEventListener(Event.ADDED_TO_STAGE, init);
+		#if neko
+		FileTrace.setRedirection();
+		#end
 	}
 	
 	function init(e) 

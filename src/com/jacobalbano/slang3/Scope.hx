@@ -45,7 +45,7 @@ class Scope
 	
 	@:allow(com.jacobalbano.slang3) var parent:Scope;
 	@:allow(com.jacobalbano.slang3)	var functions:Map<String, SlangFunction>;
-	@:allow(com.jacobalbano.slang3)	var vars:Map<String, ScriptVariable>;
+	private	var vars:Map<String, ScriptVariable>;
 	
 	public function new(parent:Scope = null) 
 	{
@@ -72,8 +72,85 @@ class Scope
 	
 	@:allow(com.jacobalbano.slang3) function evalExpression(symbols:Array<Dynamic>):Array<Dynamic>
 	{
-		var context = new ExecutionContext(this);
+		var results:Array<Dynamic> = [];
+		var callstack:Array<SlangFunction> = [];
+		var argstack:Array<Dynamic> = [];
+		var argcounts:Array<Int> = [];
+		var argcount:Int = 0;
+		
+		var checkCall:Void->Void = null;
+		var pushFunc:SlangFunction->Void = null;
+		var pushArg:Dynamic->Void = null;
+		var getStacktrace:Void->String = null;
+		
+		pushArg = function(value:Dynamic)
+		{			
+			if (callstack.length > 0)
+			{
+				++argcount;
+				argstack.push(value);
+				checkCall();
+			}
+			else
+			{
+				results.push(value);
+			}
+		}
 			
+		pushFunc = function(func:SlangFunction)
+		{
+			callstack.push(func);
+			argcounts.push(argcount);
+			argcount = 0;
+			checkCall();
+		}
+		
+		getStacktrace = function()
+		{
+			return "at " + [for (f in callstack) f.name].join("\n\t");
+		}
+		
+		
+		checkCall = function()
+		{
+			if (callstack.length > 0)
+			{
+				var func = callstack[callstack.length - 1];
+				if (func.argc == argcount)
+				{
+					var result = func.call(argstack.slice(-argcount));
+					var count = func.argc;
+					while (count --> 0)
+					{
+						argstack.pop();
+					}
+					
+					callstack.pop();
+					var count = argcounts.pop();
+					if (count == null)
+					{
+						argcount = 0;
+					}
+					else
+					{
+						argcount = count;
+					}
+					
+					if (result != null)
+					{
+						if (Std.is(result, SlangFunction))
+						{
+							pushFunc(cast result);
+						}
+						else
+						{
+							pushArg(result);
+						}
+					}
+				}
+			}
+		}
+		
 		try
 		{
 			for (sym in symbols)
@@ -84,46 +161,52 @@ class Scope
 					if (l.type == Token.Identifier)
 					{
 						var name = Std.string(l.value);
+						
 						var func = getFunction(name);
 						if (func != null)
 						{
-							context.pushFunc(func);
+							pushFunc(func);
 							continue;
 						}
 						
 						var variable = getVar(name);
 						if (variable != null)
 						{
-							context.pushArg(variable);
+							pushArg(variable);
 							continue;
 						}
+						
+						throw "'" + name + "' is undefined.";
 					}
 					else
 					{
-						context.pushArg(l.value);
+						pushArg(l.value);
 					}
 				}
 				else if (Std.is(sym, SlangArray))
 				{
 					var arr:SlangArray = cast sym;
 					arr.process(this);
-					context.pushArg(arr);
+					pushArg(arr);
 				}
 				else
 				{
 					//	literal values
-					context.pushArg(sym);
+					pushArg(sym);
 				}
 			}
 			
-			context.assertCompleted();
+			if (callstack.length > 0)
+			{
+				throw "Unresolved functions left on stack.";
+			}
 		}
 		catch (e:String)
 		{
-			throw e + "\n\t" + context.getStacktrace();
+			throw e + "\n\t" + getStacktrace();
 		}
 		
-		return context.getResults();
+		return results;
 	}
 	
 	private function getFunction(name:String):SlangFunction
@@ -155,13 +238,24 @@ class Scope
 			return parent.getVar(name);
 		}
 		
-		throw "'" + name + "' is undefined.";
 		return null;
 	}
 	
 	@:allow(com.jacobalbano.slang3)	function process(symbols:Array<Dynamic>):Void
 	{
 		this.symbols = removeMatches(symbols);
+		
+		for (sym in symbols)
+		{
+			if (Std.is(sym, Scope))
+			{
+				var s:Scope = cast sym;
+				if (s.parent == null)
+				{
+					s.parent = this;
+				}
+			}
+		}
 	}
 	
 	private function removeMatches(symbols:Array<Dynamic>):Array<Dynamic>
@@ -339,8 +433,13 @@ class Scope
 	{
 		var id:Literal = cast combo[1];
 		var name:String = Std.string(id.value);
-		var variable = new ScriptVariable(null);
+		var variable = new ScriptVariable(name, null);
 		
+		return setVar(name, variable);
+	}
+	
+	public function setVar(name:String, variable:ScriptVariable):ScriptVariable
+	{
 		if (vars[name] != null)
 		{
 			throw "A variable with the name '" + name + "' is already defined.";
@@ -369,8 +468,26 @@ class Scope
 	
 	public function toString():String
 	{
-		var a:Array<Dynamic> = [for (x in symbols) Std.string("\t" + x + "\n")];
-		return "[object Scope] {\n" + a.join(" ") + "\n}";
+		var a:Array<String> = [];
+		a.push("symbols:");
+		for (x in symbols)
+		{
+			a.push("\t" + Std.string(x));
+		}
+		
+		a.push("functions:");
+		for (f in functions)
+		{
+			 a.push("\t" + f.name);
+		}
+		
+		a.push("variables:");
+		for (v in vars)
+		{
+			a.push("\t" + v);
+		}
+		
+		return "[object Scope" + (parent == null ? " (global) " : "") + "] {\n\t" + a.join("\n\t") + "\n}";
 	}
 	
 }

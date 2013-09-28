@@ -1,15 +1,13 @@
-func second()
-{
-	if true {
+set var n "should be 5"
+
+func f(n) {
+	func ff(n) {
 		if true {
-			return 0
+			print n
 		}
 	}
+	
+	ff div n 2
 }
 
-func first()
-{
-	second
-}
-
-first
+f 10

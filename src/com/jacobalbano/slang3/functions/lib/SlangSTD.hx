@@ -48,7 +48,12 @@ class SlangSTD
 	
 	private static function __if(condition:Bool, scope:Scope):Void
 	{
-		trace(scope.parent);
+		var p:Scope = scope;
+		while (p != null)
+		{
+			trace(p);
+			p = p.parent;
+		}
 		if (condition)
 		{
 			scope.execute();

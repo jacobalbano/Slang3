@@ -28,14 +28,17 @@ class ScriptFunction extends SlangFunction
 		scope.functions.set("return", new NativeFunction("return", __return, 1, FunctionType.Function, this));
 	}
 	
-	override public function call(context:ExecutionContext, args:Array<Dynamic>):Dynamic
+	override public function call(args:Array<Dynamic>):Dynamic
 	{
+		trace("execute", name);
 		for (i in 0...args.length)
 		{
-			scope.vars.set(params.IDs[i], new ScriptVariable(args[i]));
+			var v = scope.setVar(params.IDs[i], new ScriptVariable(params.IDs[i], args[i]));
+			trace("arg", v);
 		}
 		
 		scope.execute();
+		
 		return result;
 	}
 	

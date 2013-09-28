@@ -1,5 +1,4 @@
 package com.jacobalbano.slang3.functions;
-import com.jacobalbano.slang3.ExecutionContext;
 import com.jacobalbano.slang3.functions.SlangFunction;
 import com.jacobalbano.slang3.Scope;
 import com.jacobalbano.slang3.ScriptVariable;
@@ -24,8 +23,9 @@ class NativeFunction extends SlangFunction
 		_argc = argc;
 	}
 	
-	override public function call(context:ExecutionContext, args:Array<Dynamic>):Dynamic 
+	override public function call(args:Array<Dynamic>):Dynamic 
 	{
+		trace("execute", name, "( " + args.join(", ") + " )");
 		for (i in 0...args.length)
 		{
 			var index = refs.indexOf(i);
