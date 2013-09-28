@@ -435,16 +435,16 @@ class Scope
 		var name:String = Std.string(id.value);
 		var variable = new ScriptVariable(name, null);
 		
-		return setVar(name, variable);
-	}
-	
-	public function setVar(name:String, variable:ScriptVariable):ScriptVariable
-	{
 		if (vars[name] != null)
 		{
 			throw "A variable with the name '" + name + "' is already defined.";
 		}
 		
+		return setVar(name, variable);
+	}
+	
+	public function setVar(name:String, variable:ScriptVariable):ScriptVariable
+	{
 		vars.set(name, variable);
 		
 		return variable;

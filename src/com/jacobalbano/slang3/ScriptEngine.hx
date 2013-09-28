@@ -236,9 +236,9 @@ class ScriptEngine
 							i += read.length;
 							result.push(new SlangArray(read.contents));
 						case Token.ScopeBegin:
-							var read = collapse(symbols, i, Token.ScopeEnd, parent);
-							i += read.length;
 							var scope = new Scope(parent);
+							var read = collapse(symbols, i, Token.ScopeEnd, scope);
+							i += read.length;
 							scope.process(read.contents);
 							result.push(scope);
 						case Token.TupleBegin:

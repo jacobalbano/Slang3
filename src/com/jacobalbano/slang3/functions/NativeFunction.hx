@@ -25,7 +25,6 @@ class NativeFunction extends SlangFunction
 	
 	override public function call(args:Array<Dynamic>):Dynamic 
 	{
-		trace("execute", name, "( " + args.join(", ") + " )");
 		for (i in 0...args.length)
 		{
 			var index = refs.indexOf(i);
