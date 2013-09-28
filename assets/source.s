@@ -1,12 +1,10 @@
-func fib(n) {
-	ifelse < n 2 {
+func down(n) {
+	print n
+	ifelse == n 0 {
 		return n
 	} {
-		set var a1 fib sub n 2
-		set var a2 fib sub n 1
-		
-		return add a1 a2
+		return down sub n 1
 	}
 }
 
-print fib 5
+down 5

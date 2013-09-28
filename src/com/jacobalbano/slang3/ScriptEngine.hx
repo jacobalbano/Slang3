@@ -65,7 +65,6 @@ class ScriptEngine
 		var global = new Scope();
 		var collapsed = collapse(parsed, 0, Token.ModuleEnd, global);
 		global.process(collapsed.contents);
-		trace(global);
 		return global;
 	}
 	

@@ -30,11 +30,9 @@ class ScriptFunction extends SlangFunction
 	
 	override public function call(args:Array<Dynamic>):Dynamic
 	{
-		trace("execute", name);
 		for (i in 0...args.length)
 		{
 			var v = scope.setVar(params.IDs[i], new ScriptVariable(params.IDs[i], args[i]));
-			trace("arg", v);
 		}
 		
 		scope.execute();
