@@ -1,15 +1,8 @@
 package com.jacobalbano;
-#if neko
-import com.jacobalbano.slang3.FileTrace;
-#end
-
 import com.jacobalbano.slang3.ScriptEngine;
-import flash.display.Bitmap;
-import flash.display.BitmapData;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
-import openfl.Assets;
 
 /**
  * ...
@@ -22,14 +15,15 @@ class Main extends Sprite
 	{
 		super();	
 		addEventListener(Event.ADDED_TO_STAGE, init);
-		#if neko
-		FileTrace.setRedirection();
-		#end
 	}
 	
 	function init(e) 
 	{
-		var source = Assets.getText("assets/source.s");
+		var source =
+		'func greet (name) { ' + 
+		'	printf "Hello, {0}!" [name] ' + 
+		'} ' + 
+		'greet "Jake"';
 		
 		var engine = new ScriptEngine();
 		var scope = engine.compile(source);

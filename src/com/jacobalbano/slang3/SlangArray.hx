@@ -9,6 +9,12 @@ class SlangArray
 	@:allow(com.jacobalbano.slang3) var symbols:Array<Dynamic>;
 	@:allow(com.jacobalbano.slang3) var contents:Array<Dynamic>;
 	
+	public var array (get, never) :Array<Dynamic>;
+	private function get_array():Array<Dynamic>
+	{
+		return contents;
+	}
+	
 	public function new(symbols:Array<Dynamic>) 
 	{
 		this.symbols = symbols;

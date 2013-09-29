@@ -1,10 +1,5 @@
-func down(n) {
-	print n
-	ifelse == n 0 {
-		return n
-	} {
-		return down sub n 1
-	}
+func greet (name) {
+	printf "Hello, {0}!" [name]
 }
 
-down 5
+greet "Jake"
