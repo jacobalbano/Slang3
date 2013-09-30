@@ -42,7 +42,14 @@ class ScriptFunction extends SlangFunction
 	{
 		for (i in 0...args.length)
 		{
-			var v = scope.setVar(params.IDs[i], new ScriptVariable(params.IDs[i], args[i]));
+			if (Std.is(args[i], ScriptVariable))
+			{
+				scope.setVar(params.IDs[i], cast args[i]);
+			}
+			else
+			{
+				scope.setVar(params.IDs[i], new ScriptVariable(params.IDs[i], args[i]));
+			}
 		}
 		
 		scope.execute();
