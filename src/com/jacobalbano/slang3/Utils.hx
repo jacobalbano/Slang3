@@ -1,11 +1,13 @@
 package com.jacobalbano.slang3;
 
 /**
- * ...
- * @author Jake Albano
+ * Utility stuff.
  */
 class Utils
 {
+	/**
+	 * Get the index of an item in an array, or -1 if the item does not exist.
+	 */
 	public static function indexOf<T>(a:Array<T>, v:T):Int
 	{
 		var i = 0;

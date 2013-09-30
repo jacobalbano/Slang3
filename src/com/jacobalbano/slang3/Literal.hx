@@ -1,9 +1,5 @@
 package com.jacobalbano.slang3;
 import com.jacobalbano.slang3.ScriptEngine;
-/**
- * ...
- * @author Jake Albano
- */
 
 @:allow(com.jacobalbano.slang3)
 class Literal

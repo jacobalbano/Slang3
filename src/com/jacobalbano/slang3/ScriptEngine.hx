@@ -1,10 +1,5 @@
 package com.jacobalbano.slang3;
 
-/**
- * ...
- * @author Jake Albano
- */
-
 @:allow(com.jacobalbano.slang3)
 enum Token
 {
@@ -40,10 +35,16 @@ private typedef Keyword = {
 	var interrupt:Bool;
 };
 
+/**
+ * The class responsible for compiling Slang code and turning it into an executable scope.
+ */
 class ScriptEngine
 {
 	private var tokens:Map<String, Keyword>;
 	
+	/**
+	 * Constructor.
+	 */
 	public function new() 
 	{
 		tokens = new Map<String, Keyword>();
@@ -58,6 +59,11 @@ class ScriptEngine
 		tokens.set(")", 	{ token : Token.TupleEnd,	interrupt : true, } );
 	}
 	
+	/**
+	 * Compile Slang code into an executable Scope.
+	 * @param	source A string containing Slang code.
+	 * @return A scope containing executable code.
+	 */
 	public function compile(source:String):Scope
 	{
 		var parsed = parse(source);

@@ -5,14 +5,22 @@ import com.jacobalbano.slang3.ScriptVariable;
 using com.jacobalbano.slang3.Utils;
 
 /**
- * ...
- * @author Jake Albano
+ * A function made up of a reference to a method in the application.
  */
 class NativeFunction extends SlangFunction
 {
 	private var func:Dynamic;
 	private var self:Dynamic;
 	
+	/**
+	 * Constructor
+	 * @param	name The name of the function.
+	 * @param	func A reference to the underlying function.
+	 * @param	argc The number of arguments this funciton requires.
+	 * @param	type This function's type.
+	 * @param	?refs (opitonal) An array of Ints representing which indeces in the parameter array must be ScriptVariable references.
+	 * @param	?self (optional) The object to use for "this" when the function is called.
+	 */
 	public function new(name:String, func:Dynamic, argc:Int, type:FunctionType, ?refs:Array<Int>, ?self:Dynamic) 
 	{
 		super(name);
@@ -23,6 +31,12 @@ class NativeFunction extends SlangFunction
 		_argc = argc;
 	}
 	
+	
+	/**
+	 * Call the funciton.
+	 * @param	args an array of parameters to pass the function.
+	 * @return The underlying function's return value, if any.
+	 */
 	override public function call(args:Array<Dynamic>):Dynamic 
 	{
 		for (i in 0...args.length)

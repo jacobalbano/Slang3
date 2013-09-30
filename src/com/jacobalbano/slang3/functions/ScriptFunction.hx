@@ -5,10 +5,8 @@ import com.jacobalbano.slang3.ScriptVariable;
 import com.jacobalbano.slang3.Tuple;
 
 /**
- * ...
- * @author Jake Albano
- */
-
+  * A function made up of a Slang scope
+  */
 class ScriptFunction extends SlangFunction
 {
 	private var params:Tuple;
@@ -17,6 +15,13 @@ class ScriptFunction extends SlangFunction
 	//	the return value
 	private var result:Dynamic;
 	
+	/**
+	 * Constructor
+	 * @param	name The name of the function.
+	 * @param	type The type of the function.
+	 * @param	params A tuple that defines argument names.
+	 * @param	scope The function body.
+	 */
 	public function new(name:String, type:FunctionType, params:Tuple, scope:Scope)
 	{
 		super(name);
@@ -28,6 +33,11 @@ class ScriptFunction extends SlangFunction
 		scope.functions.set("return", new NativeFunction("return", __return, 1, FunctionType.Function, this));
 	}
 	
+	/**
+	 * Call the funciton.
+	 * @param	args an array of parameters to pass the function.
+	 * @return The underlying function's return value, if any.
+	 */
 	override public function call(args:Array<Dynamic>):Dynamic
 	{
 		for (i in 0...args.length)

@@ -2,14 +2,20 @@ package com.jacobalbano.slang3;
 using com.jacobalbano.slang3.Utils;
 
 /**
- * ...
- * @author Jake Albano
+ * A simple data structure that contains script identifier names.
  */
 class Tuple
 {
+	/**
+	 * How many IDs are contained in this Tuple.
+	 */
 	public var count (get, never) : Int;
 	@:allow(com.jacobalbano.slang3) var IDs:Array<String>;
-
+	
+	/**
+	 * Constructor.
+	 * @param	IDs An array of strings to use as IDs.
+	 */
 	public function new(IDs:Array<String>) 
 	{
 		this.IDs = [];

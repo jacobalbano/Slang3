@@ -9,11 +9,14 @@ import com.jacobalbano.slang3.SlangArray;
 using StringTools;
 
 /**
- * ...
- * @author Jake Albano
+ * Standard conditional operations. Bound to each global scope automatically.
  */
 class SlangSTD
 {
+	/**
+	 * Bind the standard library functions
+	 * @param	scope
+	 */
 	public static function bind(scope:Scope):Void
 	{
 		scope.functions.set("print", new NativeFunction("print", print, 1, FunctionType.Procedure));

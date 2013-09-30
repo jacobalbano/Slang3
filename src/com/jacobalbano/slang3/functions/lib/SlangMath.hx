@@ -4,11 +4,14 @@ import com.jacobalbano.slang3.functions.SlangFunction;
 import com.jacobalbano.slang3.Scope;
 
 /**
- * ...
- * @author Jake Albano
+ * Basic math operators. Bound to each global scope automatically.
  */
 class SlangMath
 {
+	/**
+	 * Bind basic math operations
+	 * @param	scope
+	 */
 	public static function bind(scope:Scope):Void
 	{
 		scope.functions.set("<", 	new NativeFunction("<", __lt, 2, FunctionType.Function));

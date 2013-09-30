@@ -8,11 +8,6 @@ import com.jacobalbano.slang3.functions.ScriptFunction;
 import com.jacobalbano.slang3.functions.NativeFunction;
 import com.jacobalbano.slang3.functions.SlangFunction;
 
-/**
- * ...
- * @author Jake Albano
- */
-
 @:allow(com.jacobalbano.slang3)
 typedef Match = Array<Dynamic>;
 
@@ -26,7 +21,11 @@ private enum MatchID
 	Incomplete;
 	NoMatchPossible;
 }
- 
+
+/**
+ * A class containing processed symbols after script compilation.
+ * Scopes can be executed multiple times after being compiled.
+ */
 class Scope
 {
 	private static var matches:Array<Dynamic>;
@@ -48,6 +47,10 @@ class Scope
 	@:allow(com.jacobalbano.slang3)	var functions:Map<String, SlangFunction>;
 	private	var vars:Map<String, ScriptVariable>;
 	
+	/**
+	 * Constructor.
+	 * @param	parent The scope that encloses this one. If null, this scope is global.
+	 */
 	public function new(parent:Scope = null) 
 	{
 		this.parent = parent;
@@ -62,6 +65,9 @@ class Scope
 		}
 	}
 	
+	/**
+	 * Executes the commands contained within this scope.
+	 */
 	public function execute():Void
 	{
 		if (symbols == null)
@@ -445,11 +451,28 @@ class Scope
 		return setVar(name, variable);
 	}
 	
+	/**
+	 * Set a variable in the scope.
+	 * @param	name The name of the variable.
+	 * @param	variable The variable to set.
+	 * @return The variable that was set.
+	 */
 	public function setVar(name:String, variable:ScriptVariable):ScriptVariable
 	{
 		vars.set(name, variable);
-		
 		return variable;
+	}
+	
+	/**
+	 * Add a function to the scope.
+	 * @param	name The name of the function.
+	 * @param	func The function to add.
+	 * @return The function that was added.
+	 */
+	public function setFunction(name:String, func:SlangFunction):SlangFunction
+	{
+		functions.set(name, func);
+		return func;
 	}
 	
 	private function newFunc(combo:Array<Dynamic>, type:FunctionType):Void

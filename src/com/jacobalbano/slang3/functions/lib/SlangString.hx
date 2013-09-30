@@ -5,11 +5,14 @@ import com.jacobalbano.slang3.Scope;
 import com.jacobalbano.slang3.SlangArray;
 
 /**
- * ...
- * @author Jake Albano
+ * Basic string functions. Bound to each global scope automatically.
  */
 class SlangString
 {
+	/**
+	 * Bind the Slang string functions
+	 * @param	scope
+	 */
 	public static function bind(scope:Scope):Void
 	{
 		scope.functions.set("string:format", new NativeFunction("string:format", stringf, 2, FunctionType.Function));

@@ -1,14 +1,18 @@
 package com.jacobalbano.slang3;
 
 /**
- * ...
- * @author Jake Albano
+ * A class that allows functions to set variables in the script.
  */
 class ScriptVariable
 {
 	public var name:String;
 	public var value:Dynamic;
 	
+	/**
+	 * Constructor
+	 * @param	name The name of the variable.
+	 * @param	value The value of the variable.
+	 */
 	public function new(name:String, value:Dynamic) 
 	{
 		this.name = name;
