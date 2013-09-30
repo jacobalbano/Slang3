@@ -1,0 +1,13 @@
+{
+  "name": "slang",
+  "license": "ZLIB",
+  "tags": ["flash","neko", "js"],
+  "description": "An experimental stack-based scripting language.",
+  "contributors": ["jacobalbano"],
+  "releasenote": "Initial release as successor to Actionscript version.",
+  "version": "3.0",
+  "url": "jacobalbano.com/slide",
+  "dependencies": {
+
+  }
+}

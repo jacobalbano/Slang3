@@ -17,7 +17,6 @@ class SlangSTD
 	public static function bind(scope:Scope):Void
 	{
 		scope.functions.set("print", new NativeFunction("print", print, 1, FunctionType.Procedure));
-		scope.functions.set("printf", new NativeFunction("printf", printf, 2, FunctionType.Procedure));
 		scope.functions.set("set", new NativeFunction("set", __set, 2, FunctionType.Function, [0]));
 		                                                   
 		scope.functions.set("if", new NativeFunction("if", __if, 2, FunctionType.Procedure));
@@ -36,30 +35,6 @@ class SlangSTD
 	private static function print(p:Dynamic):Void
 	{
 		trace(Std.string(p));
-	}
-	
-	private static function printf(s:String, args:SlangArray):Void
-	{
-		var result:String = s;
-		for (i in 0...args.array.length)
-		{
-			var item = args.array[i];
-			var replace:String = null;
-			
-			if (Std.is(item, ScriptVariable))
-			{
-				var v:ScriptVariable = cast item;
-				replace = Std.string(v.value);
-			}
-			else
-			{
-				replace = Std.string(item);
-			}
-			
-			result = StringTools.replace(s, "{" + i + "}", replace);
-		}
-		
-		trace(result);
 	}
 	
 	private static function __not(condition:Bool):Bool

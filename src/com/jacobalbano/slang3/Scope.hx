@@ -1,6 +1,7 @@
 package com.jacobalbano.slang3;
 import com.jacobalbano.slang3.functions.lib.SlangMath;
 import com.jacobalbano.slang3.functions.lib.SlangSTD;
+import com.jacobalbano.slang3.functions.lib.SlangString;
 import com.jacobalbano.slang3.Scope.Match;
 import com.jacobalbano.slang3.ScriptEngine;
 import com.jacobalbano.slang3.functions.ScriptFunction;
@@ -57,6 +58,7 @@ class Scope
 		{
 			SlangSTD.bind(this);
 			SlangMath.bind(this);
+			SlangString.bind(this);
 		}
 	}
 	
