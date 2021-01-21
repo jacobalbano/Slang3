@@ -469,9 +469,9 @@ class Scope
 	 * @param	func The function to add.
 	 * @return The function that was added.
 	 */
-	public function setFunction(name:String, func:SlangFunction):SlangFunction
+	public function setFunction(func:SlangFunction):SlangFunction
 	{
-		functions.set(name, func);
+		functions.set(func.name, func);
 		return func;
 	}
 	

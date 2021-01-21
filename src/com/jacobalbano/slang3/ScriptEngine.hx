@@ -64,11 +64,11 @@ class ScriptEngine
 	 * @param	source A string containing Slang code.
 	 * @return A scope containing executable code.
 	 */
-	public function compile(source:String):Scope
+	public function compile(source:String, ?parentScope:Scope):Scope
 	{
 		var parsed = parse(source);
 		
-		var global = new Scope();
+		var global = new Scope(parentScope);
 		var collapsed = collapse(parsed, 0, Token.ModuleEnd, global);
 		global.process(collapsed.contents);
 		return global;
